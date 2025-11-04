@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>CONCAUSA — Moda con propósito</title>
+<style>
+  body {
+    background-color: #f4ecfa;
+    font-family: "Segoe UI", Arial, sans-serif;
+    margin: 0; padding: 0;
+  }
+  header {
+    text-align:center; padding:20px;
+  }
+  #logo {
+    width:100px; height:100px; border-radius:50%;
+    border:2px solid #fff; box-shadow:0 0 10px rgba(0,0,0,0.18);
+  }
+  h1 { color:#5d3d9c; margin:8px 0 0 0; }
+  .eslogan { color:#7b57c7; font-style:italic; margin-bottom:6px; }
+  .puntosTop { color:#5d3d9c; font-weight:700; margin-top:6px; }
+
+  .container {
+    display:flex; flex-wrap:wrap; gap:22px; justify-content:center;
+    padding:20px;
+  }
+  .panel {
+    background:#fff; border-radius:12px; box-shadow:0 3px 10px rgba(0,0,0,0.12);
+    padding:18px; width:360px;
+  }
+  select,input,button {
+    width:100%; padding:8px; margin:8px 0; border-radius:8px; border:1px solid #ccc;
+    font-size:15px;
+  }
+  button { background:#7b47b3; color:#fff; border:none; cursor:pointer; }
+  button:hover{ background:#693ea0; }
+  .item { background:#f2ebff; padding:10px; border-radius:8px; margin-top:8px; }
+  #resumen { background:#ede7f6; padding:12px; border-radius:8px; margin-top:8px; text-align:center; }
+
+  .mapa { height:170px; background:#f0e3ff; border-radius:8px; padding:10px; position:relative; }
+  .mapa button { width:28px; height:28px; border-radius:50%; border:none; margin:6px; cursor:pointer; }
+
+  .pregunta-box { background:#fff; border:1px solid #eee; border-radius:8px; padding:12px; margin-bottom:10px; }
+  .pregunta-text { margin:0 0 8px 0; }
+  .resp-btn { width:48%; padding:8px; border-radius:8px; font-weight:700; border:none; cursor:pointer; }
+  .verdadero { background:#2ca58d; color:#fff; }
+  .falso { background:#ef476f; color:#fff; }
+  .explicacion { margin-top:8px; padding:8px; border-radius:6px; background:#f6f9f6; font-size:14px; }
+  .correcto { color: #2a9d8f; font-weight:700; }
+  .incorrecto { color: #e76f51; font-weight:700; }
+
+  .tox-bajo { color: green; font-weight:700; }
+  .tox-medio { color: orange; font-weight:700; }
+  .tox-alto { color: red; font-weight:700; }
+
+  /* MODAL */
+  #modalInicio, #modalInfo {
+    position:fixed; top:0; left:0; width:100%; height:100%;
+    background:rgba(0,0,0,0.6); display:flex; justify-content:center; align-items:center;
+    z-index:9999;
+  }
+  .modal-contenido {
+    background:white; padding:25px; border-radius:12px;
+    width:320px; text-align:center; box-shadow:0 3px 12px rgba(0,0,0,0.3);
+  }
+  .modal-contenido h2 { color:#5d3d9c; }
+  .modal-contenido input { width:90%; margin:6px 0; }
+  .modal-contenido button { width:90%; margin-top:8px; }
+
+  @media(max-width:820px){
+    .container { padding:12px; }
+    .panel { width:100%; max-width:740px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- MODAL DE INICIO -->
+<div id="modalInicio">
+  <div class="modal-contenido">
+    <h2>¡Bienvenido a CONCAUSA! 🌿</h2>
+    <p>Somos una app de moda con propósito que busca enseñarte sobre un consumo responsable y el nivel de impacto de tus prendas.</p>
+    <p><strong>¿Autorizas el uso de tus datos para continuar?</strong></p>
+    <button onclick="autorizar(true)">Sí, autorizo</button>
+    <button onclick="autorizar(false)" style="background:#ef476f">No, gracias</button>
+
+    <div id="registro" style="display:none; margin-top:15px;">
+      <h3>Crea tu cuenta</h3>
+      <input type="text" id="usuario" placeholder="Usuario">
+      <input type="password" id="clave" placeholder="Contraseña">
+      <button onclick="registrar()">Registrar</button>
+
+      <h4 style="margin-top:12px;">¿Ya tienes cuenta?</h4>
+      <button onclick="mostrarLogin()" style="background:#7b47b3">Iniciar sesión</button>
+    </div>
+
+    <div id="login" style="display:none; margin-top:15px;">
+      <h3>Inicia sesión</h3>
+      <input type="text" id="loginUsuario" placeholder="Usuario">
+      <input type="password" id="loginClave" placeholder="Contraseña">
+      <button onclick="iniciarSesion()">Entrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL INFORMATIVO -->
+<div id="modalInfo" style="display:none;">
+  <div class="modal-contenido">
+    <h2>🌍 Tu impacto explicado</h2>
+    <p><strong>Huella ambiental (CO₂):</strong> representa la cantidad de dióxido de carbono emitido durante la producción, transporte y mantenimiento de tus prendas. Cuanto mayor sea el valor, más gases de efecto invernadero se liberaron, contribuyendo al cambio climático.</p>
+    <p><strong>Toxicidad en humanos:</strong> indica el nivel de exposición a sustancias químicas (como colorantes o acabados sintéticos) que pueden afectar la piel o la salud si se usan en exceso o sin control ambiental.</p>
+    <p>💡 El objetivo de CONCAUSA es ayudarte a entender cómo tus decisiones de consumo influyen en el planeta y en ti, promoviendo un uso consciente y responsable de la moda.</p>
+    <button onclick="cerrarInfo()">Cerrar</button>
+  </div>
+</div>
+
+<header>
+  <img id="logo" src="logo.png" alt="Logo CONCAUSA">
+  <h1>CONCAUSA</h1>
+  <div class="eslogan">Moda con propósito</div>
+  <div class="puntosTop">Puntos: <span id="puntos">0</span></div>
+  <button onclick="cerrarSesion()" style="width:auto;padding:6px 14px;margin-top:10px;background:#ef476f;">Cerrar sesión</button>
+</header>
+
+<div class="container">
+  <div class="panel" id="panel-carrito">
+    <h2>Añadir prenda</h2>
+    <select id="prenda">
+      <option value="">Tipo de prenda</option>
+      <option value="Camisa">Camisa</option>
+      <option value="Chaqueta">Chaqueta</option>
+      <option value="Pantalón">Pantalón</option>
+    </select>
+
+    <select id="material">
+      <option value="">Material</option>
+      <option value="algodón">Algodón</option>
+      <option value="poliéster">Poliéster</option>
+      <option value="mezcla">Mezcla (Algodón / Poliéster)</option>
+    </select>
+
+    <select id="color">
+      <option value="">Color</option>
+      <option value="Rojo">Rojo</option>
+      <option value="Azul">Azul</option>
+      <option value="Café">Café</option>
+      <option value="Negro">Negro</option>
+      <option value="Blanco">Blanco</option>
+    </select>
+
+    <select id="talla">
+      <option value="">Talla</option>
+      <option value="XS">XS</option>
+      <option value="S">S</option>
+      <option value="M">M</option>
+      <option value="XL">XL</option>
+      <option value="XXL">XXL</option>
+    </select>
+
+    <input id="cantidad" type="number" min="1" value="1" placeholder="Cantidad">
+    <button onclick="agregarPrenda()">➕ Añadir al carrito</button>
+    <button onclick="vaciarCarrito()" style="background:#ef476f; margin-top:6px;">🗑 Vaciar carrito</button>
+
+    <div id="carrito"></div>
+    <div id="resumen"></div>
+  </div>
+
+  <div class="panel" id="panel-puntos">
+    <h2>Puntos de recolección ♻️</h2>
+    <p>Haz clic en un punto para registrar una recolección y ganar puntos por reciclaje textil.</p>
+    <div class="mapa">
+      <button title="Punto A" style="background:#ff6b6b" onclick="sumarPuntos(15)"></button>
+      <button title="Punto B" style="background:#ffd166" onclick="sumarPuntos(30)"></button>
+      <button title="Punto C" style="background:#06d6a0" onclick="sumarPuntos(40)"></button>
+      <button title="Punto D" style="background:#4d91ff" onclick="sumarPuntos(50)"></button>
+    </div>
+
+    <h3 style="margin-top:14px">Canjea tus puntos 🌿</h3>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:6px">
+      <button onclick="canjear(100)">Descuento 10% en tienda (100 pts)</button>
+      <button onclick="canjear(200)" style="background:#2a9d8f">Bono $20.000 en ropa (200 pts)</button>
+      <button onclick="canjear(500)" style="background:#f1a208">Bono $60.000 + Insignia (500 pts)</button>
+    </div>
+
+    <div style="margin-top:18px">
+      <h3>¿Sabías que...? 💡</h3>
+      <div id="preguntasContainer"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let carrito = [];
+  let puntos = parseInt(localStorage.getItem("puntos")) || 0;
+
+  const todasPreguntas = [
+    { texto: "¿Sabías que el poliéster puede liberar microplásticos al lavarse?", correcto: true, explicacion: "Las fibras sintéticas se desprenden durante el lavado y terminan en ríos y océanos." },
+    { texto: "¿El algodón siempre es completamente ecológico?", correcto: false, explicacion: "Aunque es natural, su cultivo puede usar mucha agua y pesticidas si no es orgánico." },
+    { texto: "¿Reutilizar o donar ropa reduce la huella de carbono?", correcto: true, explicacion: "Prolongar la vida útil de una prenda evita producir una nueva y reduce emisiones." },
+    { texto: "¿Los tintes oscuros suelen ser menos contaminantes que los claros?", correcto: false, explicacion: "Los colores oscuros suelen requerir más pigmentos y fijadores, aumentando la toxicidad." },
+    { texto: "¿La economía circular busca reutilizar materiales y reducir residuos?", correcto: true, explicacion: "Promueve reparar, reciclar y rediseñar para mantener los recursos en uso." },
+    { texto: "¿Una camiseta de poliéster tarda más de 100 años en degradarse?", correcto: true, explicacion: "El poliéster es plástico, y su degradación puede tardar siglos en completarse." },
+    { texto: "¿El lavado en frío consume más energía que el lavado con agua caliente?", correcto: false, explicacion: "El agua caliente usa más energía, por eso lavar en frío es más sostenible." },
+    { texto: "¿El cuero sintético es siempre más ecológico que el natural?", correcto: false, explicacion: "Aunque evita usar animales, se fabrica con plásticos derivados del petróleo." },
+    { texto: "¿Comprar ropa de segunda mano ayuda al medio ambiente?", correcto: true, explicacion: "Extiende el ciclo de vida de las prendas y evita nuevos procesos contaminantes." },
+    { texto: "¿El nailon es biodegradable?", correcto: false, explicacion: "El nailon es un polímero sintético que puede tardar más de 40 años en degradarse." },
+    { texto: "¿Las fibras naturales como el lino o el cáñamo requieren menos agua que el algodón?", correcto: true, explicacion: "Estas plantas son más eficientes y demandan menos recursos hídricos." },
+    { texto: "¿El lavado frecuente de la ropa reduce su impacto ambiental?", correcto: false, explicacion: "Lavar menos veces conserva la prenda y ahorra agua y energía." },
+    { texto: "¿El fast fashion produce más de 90 millones de toneladas de residuos textiles cada año?", correcto: true, explicacion: "La sobreproducción y desecho constante generan un gran impacto ambiental." },
+    { texto: "¿La ropa con glitter o lentejuelas suele ser fácil de reciclar?", correcto: false, explicacion: "Estos adornos plásticos contaminan y dificultan el reciclaje textil." },
+    { texto: "¿Los jeans son una de las prendas que más agua requiere para su producción?", correcto: true, explicacion: "Un solo jean puede requerir hasta 7.000 litros de agua en su fabricación." },
+    { texto: "¿El algodón orgánico evita el uso de pesticidas tóxicos?", correcto: true, explicacion: "Se cultiva sin químicos agresivos y protege la salud del suelo y los agricultores." },
+    { texto: "¿Las prendas hechas con materiales reciclados no generan ningún impacto?", correcto: false, explicacion: "Aunque reducen residuos, aún implican consumo de energía y transporte." },
+    { texto: "¿Planchar consume menos energía que lavar?", correcto: false, explicacion: "El planchado puede requerir mucha energía eléctrica por calor continuo." },
+    { texto: "¿La ropa hecha con fibras locales apoya economías sostenibles?", correcto: true, explicacion: "Reduce transporte y promueve cadenas de producción más éticas." },
+    { texto: "¿Usar detergentes biodegradables reduce la contaminación del agua?", correcto: true, explicacion: "Estos productos se descomponen sin liberar químicos dañinos al ambiente." }
+  ];
+
+  let preguntas = [];
+
+  function seleccionarPreguntas() {
+    const copia = [...todasPreguntas];
+    preguntas = [];
+    for(let i=0; i<5; i++){
+      const idx = Math.floor(Math.random()*copia.length);
+      preguntas.push(copia.splice(idx,1)[0]);
+    }
+  }
+
+  function autorizar(ok){
+    if(!ok){
+      alert("Para usar CONCAUSA debes autorizar el uso de datos.");
+      return;
+    }
+    document.getElementById("registro").style.display = "block";
+  }
+
+  function registrar(){
+    const usuario = document.getElementById("usuario").value.trim();
+    const clave = document.getElementById("clave").value.trim();
+    if(!usuario || !clave){ alert("Completa usuario y contraseña"); return; }
+    localStorage.setItem("usuario", usuario);
+    localStorage.setItem("clave", clave);
+    alert("✅ Usuario creado. Ahora inicia sesión.");
+    document.getElementById("registro").style.display = "none";
+    document.getElementById("login").style.display = "block";
+  }
+
+  function mostrarLogin(){
+    document.getElementById("registro").style.display = "none";
+    document.getElementById("login").style.display = "block";
+  }
+
+  function iniciarSesion(){
+    const user = document.getElementById("loginUsuario").value.trim();
+    const pass = document.getElementById("loginClave").value.trim();
+    const u = localStorage.getItem("usuario");
+    const p = localStorage.getItem("clave");
+    if(user === u && pass === p){
+      document.getElementById("modalInicio").style.display = "none";
+      alert("👋 Bienvenido " + user + " a CONCAUSA");
+      seleccionarPreguntas();
+      cargarPreguntas();
+    } else {
+      alert("Usuario o contraseña incorrectos.");
+    }
+  }
+
+  function cerrarSesion(){
+    document.getElementById("modalInicio").style.display = "flex";
+    document.getElementById("login").style.display = "block";
+    document.getElementById("registro").style.display = "none";
+    localStorage.setItem("puntos", puntos);
+  }
+
+  function agregarPrenda(){
+    const prenda = document.getElementById('prenda').value;
+    const material = document.getElementById('material').value;
+    const color = document.getElementById('color').value;
+    const cantidad = parseInt(document.getElementById('cantidad').value) || 1;
+    if(!prenda || !material || !color){ alert("Completa tipo, material y color"); return; }
+
+    const impacto = {
+      "algodón": {co2:10, tox:25},
+      "poliéster": {co2:15, tox:75},
+      "mezcla": {co2:12, tox:50}
+    };
+    const base = impacto[material];
+    const co2 = base.co2 * cantidad;
+    const tox = base.tox;
+    carrito.push({ prenda, material, color, talla, cantidad, co2, tox });
+    renderizarCarrito();
+  }
+
+  function renderizarCarrito(){
+    const cont = document.getElementById('carrito');
+    cont.innerHTML = '';
+    carrito.forEach((it, idx)=>{
+      const clase = it.tox<=33?'tox-bajo':it.tox<=66?'tox-medio':'tox-alto';
+      cont.innerHTML += `<div class='item'>
+      ${it.prenda} (${it.material}) x${it.cantidad}<br>
+      CO₂: ${it.co2.toFixed(1)} kg — Toxicidad: <span class='${clase}'>${it.tox}</span>
+      <br><button onclick='eliminarPrenda(${idx})' style='margin-top:6px;background:#ef476f'>Eliminar</button>
+      </div>`;
+    });
+    actualizarResumen();
+  }
+
+  function eliminarPrenda(i){ carrito.splice(i,1); renderizarCarrito(); }
+  function vaciarCarrito(){ carrito=[]; renderizarCarrito(); }
+
+  function actualizarResumen(){
+    const res = document.getElementById('resumen');
+    if(carrito.length===0){ res.innerHTML=''; return; }
+    const totalPrendas = carrito.reduce((s,it)=>s+it.cantidad,0);
+    const huella = carrito.reduce((s,it)=>s+it.co2,0).toFixed(1);
+    const promTox = Math.round(carrito.reduce((s,it)=>s+it.tox,0)/carrito.length);
+    const claseProm = promTox<=33?'tox-bajo':promTox<=66?'tox-medio':'tox-alto';
+    res.innerHTML = `<p><strong>Prendas:</strong> ${totalPrendas}</p>
+    <p><strong>Huella ambiental:</strong> ${huella} kg CO₂</p>
+    <p><strong>Toxicidad promedio:</strong> <span class='${claseProm}'>${promTox}</span></p>
+    <button onclick='mostrarInfo()' style='margin-top:10px;background:#7b47b3;color:#fff;width:auto;padding:6px 14px;'>¿Qué significan estos datos?</button>`;
+  }
+
+  function mostrarInfo(){
+    document.getElementById('modalInfo').style.display='flex';
+  }
+
+  function cerrarInfo(){
+    document.getElementById('modalInfo').style.display='none';
+  }
+
+  function sumarPuntos(cant){ puntos+=cant; actualizarPuntosUI(); localStorage.setItem("puntos", puntos); alert(`✅ Ganaste ${cant} puntos.`); }
+  function actualizarPuntosUI(){ document.getElementById('puntos').textContent=puntos; }
+  function canjear(costo){
+    if(puntos>=costo){ puntos-=costo; actualizarPuntosUI(); localStorage.setItem("puntos", puntos); alert("🎉 Canje exitoso."); }
+    else alert("⚠️ No tienes suficientes puntos.");
+  }
+
+  function cargarPreguntas(){
+    const cont=document.getElementById('preguntasContainer'); cont.innerHTML='';
+    preguntas.forEach((p,idx)=>{
+      const box=document.createElement('div');
+      box.className='pregunta-box'; box.id='preg'+idx;
+      box.innerHTML=`<p class='pregunta-text'>${p.texto}</p>
+      <div style='display:flex;gap:8px;'>
+        <button class='resp-btn verdadero' onclick='contestar(${idx},true)'>Verdadero</button>
+        <button class='resp-btn falso' onclick='contestar(${idx},false)'>Falso</button>
+      </div>
+      <div class='explicacion' id='exp${idx}' style='display:none;'></div>`;
+      cont.appendChild(box);
+    });
+  }
+
+  function contestar(idx,eleccion){
+    const p=preguntas[idx]; const contExp=document.getElementById('exp'+idx);
+    const correctLabel = p.correcto?'Verdadero':'Falso';
+    if(eleccion===p.correcto){
+      contExp.style.display='block';
+      contExp.innerHTML=`<span class='correcto'>Correcto. ${correctLabel}.</span> ${p.explicacion}`;
+      puntos+=10; actualizarPuntosUI(); localStorage.setItem("puntos", puntos);
+    } else {
+      contExp.style.display='block';
+      contExp.innerHTML=`<span class='incorrecto'>Incorrecto. ${correctLabel}.</span> ${p.explicacion}`;
+    }
+    const box=document.getElementById('preg'+idx);
+    box.querySelectorAll('button').forEach(b=>b.disabled=true);
+  }
+
+  actualizarPuntosUI();
+</script>
+
+</body>
+</html>
+
